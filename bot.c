@@ -1,5 +1,6 @@
 #include "bot.h"
 #include "tcp.h"
+#include "queue.h"
 #include <ev.h>
 #include <fcntl.h>
 #include <stddef.h>
@@ -22,6 +23,7 @@ irc_bot* bot_init()
     { bot_free(b); return NULL; }
 
     b->sockfd = -1;
+    b->irc_in_queue = queue_init();
     b->irc_io->data = b;
 
     return b;
@@ -39,6 +41,8 @@ int bot_free(irc_bot *b)
             free(b->irc_nick);
         if (b->irc_io != NULL)
             free(b->irc_io);
+        if (b->irc_in_queue != NULL)
+            queue_free(b->irc_in_queue);
         free(b);
     }
     return 0;
@@ -118,6 +122,7 @@ static void ev_irc_cb(EV_P_ ev_io *w, int revents)
 
                 // do something with message
                 printf("msg: %s\n", msg);
+                queue_append(b->irc_in_queue, msg);
 
                 // find the next message
                 msg_start = msg_end + 2;

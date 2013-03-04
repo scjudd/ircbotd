@@ -2,6 +2,7 @@
 #define BOT_H
 
 #include <ev.h>
+#include "queue.h"
 
 #define MAX_HOST_LEN 64     // HOST_NAME_MAX from /usr/include/bits/local_lim.h
 #define MAX_PORT_LEN 5      // 0 - 65535
@@ -15,6 +16,7 @@ typedef struct irc_bot {
     char    *irc_nick;
     int     sockfd;
     ev_io   *irc_io;
+    queue   *irc_in_queue;
 } irc_bot;
 
 irc_bot* bot_init();                // initialize a new bot
